@@ -1,18 +1,30 @@
 import React from "react";
 import { Button, Form, Input, message } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./auth.css"; // Custom CSS file for better styling
-// import { LoginUser } from "../apiCalls/users";
-// import { useNavigate } from "react-router-dom";
+import { LoginUser } from "../apiCalls/users";
 
 function Login() {
-  // const navigate = useNavigate();
-
+  const navigate = useNavigate();
+  const onFinish = async (values) => {
+    try {
+      const response = await LoginUser(values);
+      console.log(response);
+      if (response.success) {
+        localStorage.setItem("token", response.token);
+        navigate("/");
+      } else {
+        console.log("You can not move forword");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="auth-container">
       <div className="auth-box">
         <h1 className="title">Login to MovieBook</h1>
-        <Form layout="vertical">
+        <Form layout="vertical" onFinish={onFinish}>
           <Form.Item
             label="Email"
             name="email"

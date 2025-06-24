@@ -5,6 +5,9 @@ import "./App.css";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
   return (
     <div>
@@ -12,6 +15,14 @@ function App() {
         <Routes>
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </div>

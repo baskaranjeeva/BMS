@@ -1,0 +1,64 @@
+const express = require("express");
+const User = require("../models/userModel");
+const router = express.Router();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+router.post("/register", async (req, res) => {
+  try {
+    const userExists = await User.findOne({ email: req.body.email });
+    if (userExists) {
+      res.send({
+        success: false,
+        message: "User already exists",
+      });
+    }
+    // hashing and salting
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = bcrypt.hashSync(req.body.password, salt);
+    req.body.password = hashPassword;
+
+    const newUser = await User(req.body);
+    await newUser.save();
+    res.send({
+      success: true,
+      message: "User Registered successfully",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const userExists = await User.findOne({ email: req.body.email });
+    if (!userExists) {
+      res.send({
+        success: false,
+        message: "Sorry, The user doesn't exists",
+      });
+    }
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      userExists.password
+    );
+    if (!validPassword) {
+      res.status(401).send({
+        success: false,
+        message: "Invalid Password!",
+      });
+    }
+    const jwtToken = jwt.sign({ userId: userExists._id }, "scaler_movies", {
+      expiresIn: "2d",
+    });
+    res.send({
+      success: true,
+      message: "Login Successfully",
+      token: jwtToken,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+module.exports = router;
